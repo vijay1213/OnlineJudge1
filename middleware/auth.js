@@ -1,37 +1,22 @@
-const jwt = require("jsonwebtoken");
-const User = require("../models/user")
+// middleware/auth.js
+const jwt = require('jsonwebtoken');
+const keys = require('../config/keys'); // Correct path to keys.js
 
-const protect = async (req, res, next) => {
+module.exports = function(req, res, next) {
+    const token = req.header('Authorization');
 
-  let token;
-
-  
-  if (
-    req.headers.authorization
-  ) {
-    token = req.headers.authorization.split(" ")[1];
-  }
-  if (!token) {
-    return res.status(403).send('You are not allowed to make this request..');
-  }
-
-  try {
-    const decoded = jwt.verify(token, "12345");
-
-    const user = await User.findById(decoded.id);
-
-
-    if (!user) {
-        return res.status(403).send('No user found with this id');
+    // Check for token
+    if (!token) {
+        return res.status(401).json({ msg: 'No token, authorization denied' });
     }
 
-    req.user = user;
-
-    next();
-  } catch (err) {
-        return res.status(403).send(err);
-  }
+    try {
+        // Verify token
+        const decoded = jwt.verify(token.split(' ')[1], keys.secretOrKey);
+        // Add user from payload
+        req.user = decoded;
+        next();
+    } catch (e) {
+        res.status(400).json({ msg: 'Token is not valid' });
+    }
 };
-
-
-module.exports=protect;
