@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { getSubmitionAll } from '../api/getSubmitions'
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
 import AceEditor from 'react-ace';
 import { compile } from '../api/compiler';

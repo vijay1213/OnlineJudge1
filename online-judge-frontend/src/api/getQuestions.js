@@ -5,8 +5,9 @@ const getQuestions = async (lang)=>{
   try {
 
     const res = await axios
-      .get("http://localhost:5000/api/questions/")
-    return (res.data)
+      .get("http://localhost:8080/api/questions/")
+    console.log(res);
+    return res.data;
   } catch(err) {
     return err
   }
