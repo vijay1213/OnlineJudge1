@@ -12,6 +12,9 @@ const AddQ = () => {
     difficulty: '',
     testCases: [{ input: '', expectedOutput: '' }] // Initialize with one empty test case
   });
+  const onChange1 = (e) =>
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+
 
   const { uniquename, title, description, topics, difficulty, testCases } = formData;
 

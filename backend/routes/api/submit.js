@@ -8,3 +8,5 @@ const authMiddleware = require('../../middleware/auth');
 router.post("/", submitCode);
 
 module.exports = router;
+
+//router.get("/mysubmissions/:userid",mysubmissions)

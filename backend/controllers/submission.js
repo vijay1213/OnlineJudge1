@@ -1,6 +1,7 @@
 // submissionController.js
 const { exec } = require("child_process");
 const Question = require("../models/question");
+const Submission = require("../models/submission");
 const fs = require("fs");
 const path = require("path");
 const { v4: uuid } = require('uuid');
@@ -10,6 +11,8 @@ const moment = require("moment"); // For executing code
 
 const runCode = async (req, res) => {
   const { code, input, language } = req.body;
+
+  let errormsg="";
 
   // Ensure necessary data is present
   if (!code || !input || !language) {
@@ -53,6 +56,7 @@ const runCode = async (req, res) => {
   };
 
   const runUserCode = (input) => {
+    console.log("inside run user code");
     return new Promise((resolve, reject) => {
       const inputFilePath = path.join(inputDir, `${jobID}_input.txt`);
       fs.writeFileSync(inputFilePath, input);
@@ -66,9 +70,14 @@ const runCode = async (req, res) => {
   };
 
   try {
-    if (language !== "py") {
-      await execPromise(compileCommand);
-    }
+    
+      try {
+        await execPromise(compileCommand);
+      } catch (error) {
+        errormsg = error.stderr;
+        return res.json({errormsg:errormsg});
+      }
+    
 
     const output = await runUserCode(input);
 
@@ -88,7 +97,15 @@ const runCode = async (req, res) => {
 
 
 const submitCode = async (req, res) => {
-  const { language = "cpp", code, uniquename } = req.body;
+  const { language = "cpp", code, uniquename ,userId} = req.body;
+
+  console.log("userid is",userId); 
+
+  const results = [];
+    let finalVerdict = "AC";
+    let errorMessage="";
+
+  let errormsg="";
 
   if (!code) return res.status(400).json({ message: "Code is empty" });
 
@@ -149,24 +166,73 @@ const submitCode = async (req, res) => {
   };
 
   let allPassed = true;
-  const results = [];
 
   try {
     
+         try {
           await execPromise(compileCommand);
+         } catch (error) {
+          console.log("inside log");
+         try {
+          const newSubmission = new Submission({
+            userId,
+            quesID: question._id,
+            uniquename,
+            language,
+            code,
+            verdict: "RE",
+            testCases: results?.map(result => ({
+                testCase: result.testCase,
+                input: result.input,
+                yourOutput: result.yourOutput ||"N/A",
+                ExpectedOutput: result.ExpectedOutput,
+                result: result.result,
+                
+            })), 
+        });
+
+        await newSubmission.save();
+          
+         } catch (error) {
+          console.log(error);
+         }
+            errormsg = error.stderr;
+            return res.json({errormsg:errormsg});
+         }
     
 
       for (let testCase of testCases) {
           const { input, expectedOutput } = testCase;
           try {
-              const output = await runTestCase(input);
+              let output = await runTestCase(input);
               
-              if (output.trim() !== expectedOutput.trim()) {
-                  allPassed = false;
-                  break;
-              }
-          } catch (err) {
+              output = output.trim();
 
+              const verdict = output === expectedOutput.trim() ? "AC" : "WA";
+                if (verdict === "WA") {
+                    success = false; 
+                    finalVerdict = "WA";
+                }
+
+              results.push({ 
+                testCase: testCase._id,
+                input: testCase.input,
+                yourOutput: output,
+                ExpectedOutput: testCase.expectedOutput,
+                result: verdict,
+                output: output
+            });
+
+          } catch (err) {
+           let verdict="RE"
+           results.push({ 
+            testCase: testCase._id,
+            input: testCase.input,
+            yourOutput: "",
+            ExpectedOutput: testCase.expectedOutput,
+            result: verdict,
+            output: output
+        });
               break;
           }
       }
@@ -180,12 +246,25 @@ const submitCode = async (req, res) => {
   fs.unlinkSync(codeFilePath);
   if (language !== "py" && fs.existsSync(execFilePath)) fs.unlinkSync(execFilePath);
 
-  if (allPassed) {
-    console.log("all passed");
-      return res.status(200).json({ message: "Submission accepted", results });
-  } else {
-      return res.status(200).json({ message: "Wrong answer", results });
-  }
+  const newSubmission = new Submission({
+    userId,
+    quesID: question._id,
+    uniquename,
+    language,
+    code,
+    verdict: finalVerdict,
+    testCases: results.map(result => ({
+        testCase: result.testCase,
+        input: result.input,
+        yourOutput: result.yourOutput ||"N/A",
+        ExpectedOutput: result.ExpectedOutput,
+        result: result.result,
+    })), 
+});
+await newSubmission.save();
+    
+      return res.status(200).json({ message : finalVerdict, results });
+  
 };
 
 

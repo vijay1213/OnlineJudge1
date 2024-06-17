@@ -72,4 +72,20 @@ const GetOne = async (req, res) => {
   }
 };
 
-module.exports = { addQuestion, question_all, GetOne };
+// DELETE endpoint to delete a question by ID
+const deleteQuestion = async (req, res) => {
+  const { questionId } = req.params;
+
+  try {
+    const deletedQuestion = await Question.findByIdAndDelete(questionId);
+    if (!deletedQuestion) {
+      return res.status(404).json({ error: 'Question not found' });
+    }
+    res.status(200).json({ message: 'Question deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting question:', error);
+    res.status(500).json({ error: 'Failed to delete question' });
+  }
+};
+
+module.exports = { addQuestion, question_all, GetOne, deleteQuestion };

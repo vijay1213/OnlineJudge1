@@ -1,27 +1,23 @@
-var mongoose = require("mongoose");
-var Schema = mongoose.Schema;
+const mongoose=require("mongoose");
 
-var SubmissionSchema = new Schema({
-  username: { 
-    type: Schema.Types.ObjectId,
-    ref: 'User' 
-  },
-  questionname: { type: String, required: true, max: 100 },
-  solution: { type: String, required: true },
-  language: {
-    type: String,
-    enum: ["java", "c", "c++", "javascript", "python"],
-    default: "javascript"
-  },
-  status: {
-    type: String,
-    enum: ["initial", "pass", "fail"],
-    default: "initial"
-  },
-  timeupdated: { type: Date, default: Date.now },
-  timesubmitted: { type: Date },
-  runtime: { type: Number, default: 0 }
-});
-
-// Export the model
-module.exports = mongoose.model("Submission", SubmissionSchema);
+const testCaseResultSchema = new mongoose.Schema({
+    testCase: { type: String},
+    input:{type: String},
+    yourOutput:{type: String},
+    ExpectedOutput:{type: String},
+    result: { type: String}, 
+  }, { _id: false });
+  
+  const submissionSchema = new mongoose.Schema({
+    userId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'User' },
+    quesID: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Question' },
+    uniquename:{ type: String, required: true },
+    language: { type: String, required: true },
+    code: { type: String, required: true },
+    verdict: { type: String, required: true },
+    submittedAt: { type: Date, default: Date.now },
+    testCases: [testCaseResultSchema],
+  });
+  
+module.exports= mongoose.model('Submission', submissionSchema);
+  

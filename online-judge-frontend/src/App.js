@@ -9,6 +9,7 @@ import QuestionsUser from './Components/QuestionsUser';
 import { Authentication } from './utils/Authentication';
 import Signup from './Components/SignUp';
 import QuestionDescription from './Components/QuestionDescription';
+import MySubmissions from './Components/MySubmissions';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
         <Route path="/dashboard" element={Authentication(<Dashboard/>)} />
         <Route path="/addQ" element={Authentication(<AddQ/>)} />
         <Route path='/Question/:uniquename' element={Authentication(<QuestionDescription/>)} />    
+        <Route path='/submissions/:uniquename' element={Authentication(<MySubmissions/>)} />    
       </Routes>
 </>
 
