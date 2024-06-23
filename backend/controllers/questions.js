@@ -72,15 +72,26 @@ const GetOne = async (req, res) => {
   }
 };
 
+// DELETE endpoint to delete a question by IDconst Question = require('../models/question');
+const User = require('../models/user'); // Ensure you have a User model to fetch user details
+
 // DELETE endpoint to delete a question by ID
 const deleteQuestion = async (req, res) => {
-  const { questionId } = req.params;
+  const { id } = req.params; // Use id instead of questionId for consistency
 
   try {
-    const deletedQuestion = await Question.findByIdAndDelete(questionId);
-    if (!deletedQuestion) {
+    const question = await Question.findById(id);
+    if (!question) {
       return res.status(404).json({ error: 'Question not found' });
     }
+
+    // Ensure the user is authorized to delete the question
+    const user = await User.findById(req.user.id);
+    if (user.email !== 'dhwani@gmail.com') {
+      return res.status(403).json({ error: 'User is not authorized to delete this question' });
+    }
+
+    await question.remove();
     res.status(200).json({ message: 'Question deleted successfully' });
   } catch (error) {
     console.error('Error deleting question:', error);

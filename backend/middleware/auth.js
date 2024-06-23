@@ -16,7 +16,7 @@ const protect = async (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, "12345");
+    const decoded = jwt.verify(token, "123456789");
 
     const user = await User.findById(decoded.id);
 

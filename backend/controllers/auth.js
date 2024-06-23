@@ -37,7 +37,7 @@ const { errors, isValid } = validateLoginInput(req.body);
 // Sign token
         jwt.sign(
           payload,
-          "12345",
+          "123456789",
           {
             expiresIn: 31556926 // 1 year in seconds
           },
@@ -99,7 +99,7 @@ const { errors, isValid } = validateLoginInput(req.body);
 // Sign token
         jwt.sign(
           payload,
-          "12345",
+          "123456789",
           {
             expiresIn: 31556926 // 1 year in seconds
           },

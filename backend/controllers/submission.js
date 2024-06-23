@@ -172,7 +172,6 @@ const submitCode = async (req, res) => {
          try {
           await execPromise(compileCommand);
          } catch (error) {
-          console.log("inside log");
          try {
           const newSubmission = new Submission({
             userId,

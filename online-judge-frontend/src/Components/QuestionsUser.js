@@ -1,20 +1,26 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import axios from "axios"; // Import axios for making HTTP requests
+import axios from "axios";
 
 const QuestionsUser = () => {
   const [questions, setQuestions] = useState([]);
-  const [error, setError] = useState(null); // Add error state
-  const [message, setMessage] = useState(null); // Add message state for success or failure
+  const [error, setError] = useState(null);
+  const [message, setMessage] = useState(null);
+  const [authenticated, setAuthenticated] = useState(false);
 
   useEffect(() => {
+    const name = JSON.parse(localStorage.getItem('UserData')).name;
+    if (name==='vijay') {
+      setAuthenticated(true);
+    }
+
     const getQuestions = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/api/questions');
+        const response = await axios.get("http://localhost:8080/api/questions");
         setQuestions(response.data.questions);
       } catch (error) {
-        console.error('Error fetching questions:', error);
-        setError('Failed to fetch questions.');
+        console.error("Error fetching questions:", error);
+        setError("Failed to fetch questions.");
         setQuestions([]);
       }
     };
@@ -24,30 +30,47 @@ const QuestionsUser = () => {
 
   const handleDeleteQuestion = async (questionId) => {
     try {
-      const response = await fetch(`http://localhost:8080/api/questions/${questionId}`, {
-        method: 'DELETE',
-      });
-  
-      if (!response.ok) {
-        throw new Error(`Failed to delete question with id: ${questionId}, status: ${response.status}`);
+      const token = JSON.parse(localStorage.getItem('UserData')).token;
+      if (!token) {
+        throw new Error("User not authenticated");
       }
-  
-      setQuestions((prevQuestions) => prevQuestions.filter(question => question._id !== questionId));
-      setMessage('Question deleted successfully');
+
+      const response = await axios.delete(
+        `http://localhost:8080/api/questions/delete/${questionId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.data.success) {
+        throw new Error(
+          `Failed to delete question with id: ${questionId}, status: ${response.status}`
+        );
+      }
+
+      setQuestions((prevQuestions) =>
+        prevQuestions.filter((question) => question._id !== questionId)
+      );
+      setMessage("Question deleted successfully");
     } catch (error) {
-      console.error('Error:', error.message);
-      setError('Failed to delete question.');
+      console.error("Error:", error.message);
+      setError("Failed to delete question.");
     }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-600 to-indigo-600">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <h2 className="text-3xl font-bold text-center text-white mb-6">Questions</h2>
+        <h2 className="text-3xl font-bold text-center text-white mb-6">
+          Questions
+        </h2>
         <hr className="border-white border-2 mb-6" />
 
-        {/* Display message or error */}
-        {message && <div className="text-center text-green-500 mb-4">{message}</div>}
+        {message && (
+          <div className="text-center text-green-500 mb-4">{message}</div>
+        )}
         {error && <div className="text-center text-red-500 mb-4">{error}</div>}
 
         <div className="overflow-x-auto">
@@ -57,14 +80,18 @@ const QuestionsUser = () => {
                 <th className="px-4 py-2">Questions</th>
                 <th className="px-4 py-2">Difficulty</th>
                 <th className="px-4 py-2">Topics</th>
-                <th className="px-4 py-2">Actions</th> {/* Add Actions column */}
+                {authenticated && <th className="px-4 py-2">Actions</th>}
+                {/* Ensure this column header is rendered only if authenticated */}
               </tr>
             </thead>
             <tbody className="text-center">
               {questions.map((item) => (
                 <tr key={item._id} className="bg-gray-700 text-white">
                   <td className="px-4 py-2">
-                    <Link to={`/Question/${item.uniquename}`} className="text-blue-400 hover:underline">
+                    <Link
+                      to={`/Question/${item.uniquename}`}
+                      className="text-blue-400 hover:underline"
+                    >
                       {item.title}
                     </Link>
                   </td>
@@ -80,14 +107,16 @@ const QuestionsUser = () => {
                     {item.difficulty}
                   </td>
                   <td className="px-4 py-2">{item.topics}</td>
-                  <td className="px-4 py-2">
-                    <button
-                      onClick={() => handleDeleteQuestion(item._id)}
-                      className="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded"
-                    >
-                      Delete
-                    </button>
-                  </td>
+                  {authenticated && ( // Render delete button conditionally
+                    <td className="px-4 py-2">
+                      <button
+                        onClick={() => handleDeleteQuestion(item._id)}
+                        className="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>

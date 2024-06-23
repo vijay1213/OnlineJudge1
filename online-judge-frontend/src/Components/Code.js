@@ -18,7 +18,7 @@ function Code({ uniquename }) {
         // Calculate the sum
         sum = num1 + num2;  
         // Output the result
-        cout << "The sum of the two numbers is: " << sum;  
+        cout << sum;  
         // Return 0 to indicate successful execution
         return 0;  
     }`);
@@ -35,9 +35,13 @@ function Code({ uniquename }) {
     };
 
     try {
-      const { data } = await axios.post(`http://localhost:8080/api/run/running`, payload);
+      const { data } = await axios.post(
+        `http://localhost:8080/api/run/running`,
+        payload
+      );
       setOutput(data.output);
-      if (data.errormsg && data.errormsg.length > 1) setOutput(data.errormsg.substring(0, 600));
+      if (data.errormsg && data.errormsg.length > 1)
+        setOutput(data.errormsg.substring(0, 600));
       if (data.output !== null) setOutput(data.output);
     } catch (error) {
       console.log(error.response);
@@ -45,27 +49,26 @@ function Code({ uniquename }) {
   };
 
   const handleSubmit = async () => {
-    const userId = JSON.parse(localStorage.getItem('UserData')).id;
-    console.log("user id is",userId);
+    const userId = JSON.parse(localStorage.getItem("UserData")).id;
     const payload = {
       language,
       uniquename,
       code,
-      userId
+      userId,
     };
 
     try {
       const { data } = await axios.post(`http://localhost:8080/api/submit`, payload);
       if (data.errormsg && data.errormsg.length > 0) {
         setOutput(data.errormsg.substring(0, 600));
-        setStatus("rejected");
+        setStatus("WA"); // Set status to Wrong Answer (WA) for failed submission
       } else {
         setOutput(data.message);
-        setStatus("accepted");
+        setStatus("AC"); // Set status to Accepted (AC) for successful submission
       }
     } catch (error) {
       console.log(error.response);
-      setStatus("rejected");
+      setStatus("WA"); // Set status to Wrong Answer (WA) for API errors
     }
   };
 
@@ -75,7 +78,9 @@ function Code({ uniquename }) {
 
   return (
     <div className="flex flex-col h-full p-4 bg-gray-900 text-gray-200">
-      <h1 className="text-3xl font-bold mb-4 text-center">Hack-X Online Code Compiler</h1>
+      <h1 className="text-3xl font-bold mb-4 text-center">
+        Hack-X Online Code Compiler
+      </h1>
       <div className="bg-gray-800 shadow-md w-full mb-4 flex-grow p-4 rounded-md">
         <div className="mb-4">
           <select
@@ -97,8 +102,8 @@ function Code({ uniquename }) {
           style={{
             fontFamily: '"Fira code", "Fira Mono", monospace',
             fontSize: 14,
-            backgroundColor: "#000000",  // Set background color to black
-            color: "#ffffff",  // Set text color to white for better readability
+            backgroundColor: "#000000", // Set background color to black
+            color: "#ffffff", // Set text color to white for better readability
             height: "300px",
             overflowY: "auto",
             borderRadius: "0.375rem",
@@ -120,7 +125,11 @@ function Code({ uniquename }) {
             stroke="currentColor"
             className="w-5 h-5 inline-block align-middle mr-2"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+            />
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -142,7 +151,11 @@ function Code({ uniquename }) {
             stroke="currentColor"
             className="w-5 h-5 inline-block align-middle mr-2"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+            />
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -163,7 +176,15 @@ function Code({ uniquename }) {
             className="border border-gray-600 rounded-md py-2 px-4 mb-1 focus:outline-none focus:border-indigo-500 resize-none w-full bg-gray-700 text-gray-200"
           ></textarea>
         </div>
-        <div className={`flex-1 rounded-md p-4 ${status === 'accepted' ? 'bg-green-800' : status === 'rejected' ? 'bg-red-800' : 'bg-gray-800'}`}>
+        <div
+          className={`flex-1 rounded-md p-4 ${
+            status === "accepted"
+              ? "bg-green-800"
+              : status === "WA"
+              ? "bg-red-800"
+              : "bg-gray-800"
+          }`}
+        >
           <h2 className="text-lg font-semibold mb-2">Output</h2>
           <textarea
             rows="10"
@@ -171,7 +192,7 @@ function Code({ uniquename }) {
             placeholder="Output"
             readOnly
             className="border border-gray-600 rounded-md py-2 px-4 mb-1 focus:outline-none focus:border-indigo-500 resize-none w-full bg-gray-700 text-gray-200"
-            style={{ minHeight: '100px' }}
+            style={{ minHeight: "100px" }}
           ></textarea>
         </div>
       </div>

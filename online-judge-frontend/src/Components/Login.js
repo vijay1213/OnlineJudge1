@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -10,7 +10,7 @@ const Login = () => {
   const nav = useNavigate();
 
   useEffect(() => {
-    if(localStorage.getItem('UserData')) {
+    if (localStorage.getItem('UserData')) {
       nav('/');
     }
   }, [nav]);
@@ -87,6 +87,9 @@ const Login = () => {
         <button onClick={handleClick} className="w-full py-3 px-4 bg-gray-600 hover:bg-gray-700 rounded-lg text-white font-bold">
           Login
         </button>
+        <div className="text-center mt-4">
+          <Link to="/signup" className="text-blue-500 hover:text-blue-700">Don't have an account? Sign Up</Link>
+        </div>
       </div>
     </div>
   );
