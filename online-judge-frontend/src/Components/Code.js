@@ -178,7 +178,7 @@ function Code({ uniquename }) {
         </div>
         <div
           className={`flex-1 rounded-md p-4 ${
-            status === "accepted"
+            status === "pass"
               ? "bg-green-800"
               : status === "WA"
               ? "bg-red-800"

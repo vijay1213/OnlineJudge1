@@ -10,7 +10,7 @@ const QuestionsUser = () => {
 
   useEffect(() => {
     const name = JSON.parse(localStorage.getItem('UserData')).name;
-    if (name==='vijay') {
+    if (name === 'vijay') {
       setAuthenticated(true);
     }
 
@@ -60,37 +60,81 @@ const QuestionsUser = () => {
     }
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-600 to-indigo-600">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <h2 className="text-3xl font-bold text-center text-white mb-6">
-          Questions
-        </h2>
-        <hr className="border-white border-2 mb-6" />
+  const styles = {
+    container: {
+      minHeight: '100vh',
+      backgroundColor: '#f0f4f8', // Light background color
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    content: {
+      maxWidth: '1200px',
+      margin: '0 auto',
+      padding: '24px',
+      backgroundColor: 'rgba(255, 255, 255, 0.9)', // White background with slight transparency
+      borderRadius: '8px',
+      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+    },
+    heading: {
+      fontSize: '2rem',
+      fontWeight: 'bold',
+      textAlign: 'center',
+      color: '#333',
+      marginBottom: '24px',
+    },
+    separator: {
+      border: '2px solid #333',
+      marginBottom: '24px',
+    },
+    table: {
+      width: '100%',
+      borderCollapse: 'collapse',
+      border: '1px solid #ddd',
+    },
+    thead: {
+      backgroundColor: '#333',
+      color: '#fff',
+    },
+    tbody: {
+      backgroundColor: '#f9f9f9',
+      color: '#333',
+    },
+    button: {
+      backgroundColor: '#d32f2f',
+      color: '#fff',
+      padding: '8px 16px',
+      borderRadius: '4px',
+      cursor: 'pointer',
+    },
+  };
 
-        {message && (
-          <div className="text-center text-green-500 mb-4">{message}</div>
-        )}
+  return (
+    <div style={styles.container}>
+      <div style={styles.content}>
+        <h2 style={styles.heading}>Questions</h2>
+        <hr style={styles.separator} />
+
+        {message && <div className="text-center text-green-500 mb-4">{message}</div>}
         {error && <div className="text-center text-red-500 mb-4">{error}</div>}
 
         <div className="overflow-x-auto">
-          <table className="w-full table-auto border-collapse border border-gray-600">
-            <thead>
-              <tr className="bg-gray-800 text-white">
+          <table style={styles.table}>
+            <thead style={styles.thead}>
+              <tr>
                 <th className="px-4 py-2">Questions</th>
                 <th className="px-4 py-2">Difficulty</th>
                 <th className="px-4 py-2">Topics</th>
                 {authenticated && <th className="px-4 py-2">Actions</th>}
-                {/* Ensure this column header is rendered only if authenticated */}
               </tr>
             </thead>
-            <tbody className="text-center">
+            <tbody style={styles.tbody}>
               {questions.map((item) => (
-                <tr key={item._id} className="bg-gray-700 text-white">
+                <tr key={item._id}>
                   <td className="px-4 py-2">
                     <Link
                       to={`/Question/${item.uniquename}`}
-                      className="text-blue-400 hover:underline"
+                      className="text-blue-500 hover:underline"
                     >
                       {item.title}
                     </Link>
@@ -98,20 +142,20 @@ const QuestionsUser = () => {
                   <td
                     className={`px-4 py-2 capitalize ${
                       item.difficulty === "easy"
-                        ? "bg-green-500"
+                        ? "bg-green-500 text-white"
                         : item.difficulty === "medium"
-                        ? "bg-yellow-500"
-                        : "bg-red-500"
+                        ? "bg-yellow-500 text-white"
+                        : "bg-red-500 text-white"
                     }`}
                   >
                     {item.difficulty}
                   </td>
                   <td className="px-4 py-2">{item.topics}</td>
-                  {authenticated && ( // Render delete button conditionally
+                  {authenticated && (
                     <td className="px-4 py-2">
                       <button
                         onClick={() => handleDeleteQuestion(item._id)}
-                        className="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded"
+                        style={styles.button}
                       >
                         Delete
                       </button>

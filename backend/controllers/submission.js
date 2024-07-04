@@ -99,10 +99,9 @@ const runCode = async (req, res) => {
 const submitCode = async (req, res) => {
   const { language = "cpp", code, uniquename ,userId} = req.body;
 
-  console.log("userid is",userId); 
 
   const results = [];
-    let finalVerdict = "AC";
+    let finalVerdict = "pass";
     let errorMessage="";
 
   let errormsg="";
@@ -207,10 +206,10 @@ const submitCode = async (req, res) => {
               
               output = output.trim();
 
-              const verdict = output === expectedOutput.trim() ? "AC" : "WA";
-                if (verdict === "WA") {
+              const verdict = output === expectedOutput.trim() ? "pass" : "wrong answer";
+                if (verdict === "wrong answer") {
                     success = false; 
-                    finalVerdict = "WA";
+                    finalVerdict = "wrong answer";
                 }
 
               results.push({ 

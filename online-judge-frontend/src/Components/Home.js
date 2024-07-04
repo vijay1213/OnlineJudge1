@@ -1,6 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSpring, animated } from '@react-spring/web';
 import { Button } from 'react-bootstrap';
+import backgroundImage from '../images/background.jpg'; // Adjust the path based on your folder structure
 
 const Home = () => {
   const nav = useNavigate();
@@ -9,20 +11,21 @@ const Home = () => {
     container: {
       display: 'flex',
       minHeight: '100vh',
-      background: 'linear-gradient(to right, #141e30, #243b55)',
+      background: `linear-gradient(to right, rgba(20, 30, 48, 0.7), rgba(36, 59, 85, 0.7)), url(${backgroundImage})`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
     },
     leftSection: {
       flex: 1,
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
-      background: 'rgba(0, 0, 0, 0.7)',
     },
     content: {
       textAlign: 'center',
       padding: '2rem',
       borderRadius: '8px',
-      background: 'rgba(0, 0, 0, 0.8)',
+      background: 'rgba(0, 0, 0, 0.7)',
       boxShadow: '0 4px 8px rgba(0, 0, 0, 0.3)',
     },
     title: {
@@ -30,19 +33,16 @@ const Home = () => {
       fontWeight: 'bold',
       marginBottom: '1rem',
       color: '#ffeb3b',
-      animation: 'wiggle 1s ease-in-out infinite',
     },
     description: {
       fontSize: '1.25rem',
       marginBottom: '1.5rem',
       color: '#e0e0e0',
-      animation: 'fadeIn 1.5s ease-in-out',
     },
     separator: {
       border: '1px solid #e0e0e0',
       width: '50%',
       margin: '0 auto 2rem auto',
-      animation: 'fadeIn 1.5s ease-in-out',
     },
     button: {
       display: 'inline-block',
@@ -55,20 +55,41 @@ const Home = () => {
       borderRadius: '4px',
       cursor: 'pointer',
       transition: 'background 0.3s',
-      animation: 'pulse 1.5s infinite',
     },
   };
+
+  const titleSpring = useSpring({
+    from: { opacity: 0, transform: 'translateY(-50px)' },
+    to: { opacity: 1, transform: 'translateY(0)' },
+    delay: 300,
+  });
+
+  const descSpring = useSpring({
+    from: { opacity: 0, transform: 'translateY(-50px)' },
+    to: { opacity: 1, transform: 'translateY(0)' },
+    delay: 600,
+  });
+
+  const buttonSpring = useSpring({
+    from: { opacity: 0 },
+    to: { opacity: 1 },
+    delay: 900,
+  });
 
   return (
     <div style={styles.container}>
       <div style={styles.leftSection}>
         <div style={styles.content}>
-          <h1 style={styles.title}>Online Judge</h1>
-          <p style={styles.description}>Built with React, Node.js, Express, and MongoDB.</p>
+          <animated.h1 style={{ ...styles.title, ...titleSpring }}>Online Judge</animated.h1>
+          <animated.p style={{ ...styles.description, ...descSpring }}>
+            Built with React, Node.js, Express, and MongoDB.
+          </animated.p>
           <hr style={styles.separator} />
-          <Button onClick={() => nav('/questions')} style={styles.button}>
-            Go To Questions
-          </Button>
+          <animated.div style={buttonSpring}>
+            <Button onClick={() => nav('/questions')} style={styles.button}>
+              Go To Questions
+            </Button>
+          </animated.div>
         </div>
       </div>
       <div style={styles.rightSection}>

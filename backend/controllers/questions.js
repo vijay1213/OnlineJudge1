@@ -48,7 +48,6 @@ const question_all = async (req, res) => {
 };
 
 const GetOne = async (req, res) => {
-  console.log("inside get question");
   const uniquename = req.params.uniquename;
   try {
     const question = await Question.findOne({uniquename:uniquename});

@@ -27,7 +27,7 @@ const QuestionDescription = () => {
   const [selectedSubmission, setSelectedSubmission] = useState();
 
   useEffect(() => {
-    getQuestionDescription().then((data) => setQues(data.question));
+    getQuestionDescription();
     fetchPreviousSubmissions();
   }, [uniquename]);
 
@@ -39,10 +39,9 @@ const QuestionDescription = () => {
           withCredentials: true,
         }
       );
-      return res.data;
+      setQues(res.data.question);
     } catch (error) {
       console.error("Error fetching question description:", error);
-      return null;
     }
   };
 
@@ -104,24 +103,24 @@ const QuestionDescription = () => {
                 <h1 className="text-4xl font-bold text-indigo-600">
                   {ques?.title}
                 </h1>
+                <div className="flex items-center text-sm text-gray-700">
+                  {ques?.topics && (
+                    <span className="mr-4 bg-indigo-100 text-indigo-700 rounded-full px-3 py-1 text-xs font-semibold">
+                      {ques?.topics}
+                    </span>
+                  )}
+                  <span
+                    className={`font-bold ${difficultyColor(
+                      ques?.difficulty
+                    )} text-lg`}
+                  >
+                    {ques?.difficulty}
+                  </span>
+                </div>
               </div>
               <p className="text-lg mb-4 leading-relaxed text-gray-800">
                 {ques?.description}
               </p>
-              <div className="flex items-center text-sm text-gray-700 mb-4">
-                {ques?.topics && (
-                  <span className="mr-4 bg-indigo-100 text-indigo-700 rounded-full px-3 py-1 text-xs font-semibold">
-                    {ques?.topics}
-                  </span>
-                )}
-                <span
-                  className={`font-bold ${difficultyColor(
-                    ques?.difficulty
-                  )} text-lg`}
-                >
-                  {ques?.difficulty}
-                </span>
-              </div>
             </div>
           )}
           {view === "submissions" && (
@@ -141,19 +140,19 @@ const QuestionDescription = () => {
                         <div className="flex items-center">
                           <span
                             className={`text-sm mr-2 ${
-                              submission.status === "AC"
+                              submission.verdict === "AC" ||
+                              submission.verdict === "pass"
                                 ? "text-green-600"
                                 : "text-red-600"
                             }`}
                           >
+                            {submission.verdict === "AC" ||
+                            submission.verdict === "pass"
+                              ? "Accepted"
+                              : submission.verdict === "WA"
+                              ? "Wrong Answer"
+                              : "Compilation Error"}
                           </span>
-                          {selectedSubmission?._id === submission._id && (
-                            <span className="text-xl font-semibold mt-4">
-                              {submission?.status === "AC"
-                                ? "Accepted"
-                                : "Rejected"}
-                            </span>
-                          )}
                         </div>
                         <button
                           onClick={() => handleSubmissionClick(submission)}
@@ -180,30 +179,35 @@ const QuestionDescription = () => {
         <h2 className="text-3xl font-semibold text-indigo-600 mb-4">
           Code Editor
         </h2>
-        {selectedSubmission && (
+        {selectedSubmission ? (
           <div>
             <h3 className="text-2xl font-semibold mb-4">Submission Details</h3>
             <pre className="bg-gray-100 p-4 rounded-lg overflow-auto">
               {selectedSubmission.code}
             </pre>
-            <p className={`text-xl font-semibold mt-4 ${
-              selectedSubmission.status === "AC"
-                ? "text-green-600"
-                : "text-red-600"
-            }`}>
-              {selectedSubmission.status === "AC"
+            <p
+              className={`text-xl font-semibold mt-4 ${
+                selectedSubmission.verdict === "AC" || selectedSubmission.verdict === "pass"
+                  ? "text-green-600"
+                  : "text-red-600"
+              }`}
+            >
+              {selectedSubmission.verdict === "AC" || selectedSubmission.verdict === "pass"
                 ? "Accepted"
-                : "Rejected"}
+                : selectedSubmission.verdict === "WA"
+                ? "Wrong Answer"
+                : "Compilation Error"}
             </p>
             <button
-              onClick={() => setSelectedSubmission()}
+              onClick={() => setSelectedSubmission(null)}
               className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded"
             >
               Back to Submissions
             </button>
           </div>
+        ) : (
+          <Code uniquename={ques?.uniquename} />
         )}
-        {!selectedSubmission && <Code uniquename={ques?.uniquename} />}
       </div>
     </div>
   );
